@@ -923,7 +923,8 @@ void benchmark_log(int level, const char *fmt, ...)
 
 bool is_redis_protocol(enum PROTOCOL_TYPE type)
 {
-    return (type == PROTOCOL_REDIS_DEFAULT || type == PROTOCOL_RESP2 || type == PROTOCOL_RESP3);
+    return (type == PROTOCOL_REDIS_DEFAULT || type == PROTOCOL_RESP2 || type == PROTOCOL_RESP3 ||
+            type == PROTOCOL_RESP4);
 }
 
 static const char *get_protocol_name(enum PROTOCOL_TYPE type)
@@ -934,6 +935,8 @@ static const char *get_protocol_name(enum PROTOCOL_TYPE type)
         return "resp2";
     else if (type == PROTOCOL_RESP3)
         return "resp3";
+    else if (type == PROTOCOL_RESP4)
+        return "resp4";
     else if (type == PROTOCOL_MEMCACHE_TEXT)
         return "memcache_text";
     else if (type == PROTOCOL_MEMCACHE_BINARY)
@@ -2135,6 +2138,8 @@ static int config_parse_args(int argc, char *argv[], struct benchmark_config *cf
                 cfg->protocol = PROTOCOL_RESP2;
             } else if (strcmp(optarg, "resp3") == 0) {
                 cfg->protocol = PROTOCOL_RESP3;
+            } else if (strcmp(optarg, "resp4") == 0) {
+                cfg->protocol = PROTOCOL_RESP4;
             } else if (strcmp(optarg, "memcache_text") == 0) {
                 cfg->protocol = PROTOCOL_MEMCACHE_TEXT;
             } else if (strcmp(optarg, "memcache_binary") == 0) {
@@ -3287,7 +3292,7 @@ void usage()
         "  -4, --ipv4                     Force IPv4 address resolution.\n"
         "  -6  --ipv6                     Force IPv6 address resolution.\n"
         "  -P, --protocol=PROTOCOL        Protocol to use (default: redis).\n"
-        "                                 other supported protocols are resp2, resp3, memcache_text, "
+        "                                 other supported protocols are resp2, resp3, resp4 (RESP3 + binary command ids), memcache_text, "
         "memcache_binary and memcache_meta.\n"
         "                                 memcache_meta is the modern Memcached meta-command protocol "
         "(memcached 1.6.10+).\n"

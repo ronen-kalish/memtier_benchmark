@@ -707,7 +707,7 @@ int shard_connection::connect(struct connect_info *addr)
     // set required setup commands
     m_authentication = m_config->authenticate ? setup_none : setup_done;
     m_db_selection = m_config->select_db ? setup_none : setup_done;
-    m_hello = (m_config->protocol == PROTOCOL_RESP2 || m_config->protocol == PROTOCOL_RESP3) ? setup_none : setup_done;
+    m_hello = (m_config->protocol == PROTOCOL_RESP2 || m_config->protocol == PROTOCOL_RESP3 || m_config->protocol == PROTOCOL_RESP4) ? setup_none : setup_done;
     // Replica connections need READONLY before they will serve user reads;
     // cluster mode only (standalone replicas need a different ladder per P2
     // design brief). Re-armed on every reconnect because the flag is
@@ -1726,7 +1726,7 @@ void shard_connection::process_response(void)
                     m_queued_replies += replies - 1;
                     replies = 1;
                 } else if (!top_error) {
-                    if (m_config->protocol != PROTOCOL_RESP3 && r->get_top_array_len() > 0)
+                    if (m_config->protocol != PROTOCOL_RESP3 && m_config->protocol != PROTOCOL_RESP4 && r->get_top_array_len() > 0)
                         m_front_extra_replies = m_queued_replies;
                     m_queued_replies = 0;
                 } else if (status != NULL && strncmp(status, "-EXECABORT", 10) == 0) {
