@@ -301,6 +301,7 @@ protected:
     }
 
 public:
+    void set_binary_cmds(bool b) { m_binary_cmds = b; }
     redis_protocol() :
             m_response_state(rs_initial),
             m_bulk_len(0),
@@ -317,7 +318,7 @@ public:
             m_nested_remaining(0)
     {
     }
-    virtual redis_protocol *clone(void) { return new redis_protocol(); }
+    virtual redis_protocol *clone(void) { redis_protocol *p = new redis_protocol(); p->m_binary_cmds = m_binary_cmds; return p; }
     virtual void reset_state();
     virtual int select_db(int db);
     virtual int authenticate(const char *credentials);
@@ -2022,7 +2023,10 @@ int memcache_binary_protocol::write_arbitrary_command(const char *val, int val_l
 class abstract_protocol *protocol_factory(enum PROTOCOL_TYPE type)
 {
     if (is_redis_protocol(type)) {
-        return new redis_protocol();
+        redis_protocol *p = new redis_protocol();
+        // custom commands are formatted before HELLO is sent, so the mode must be known at creation
+        p->set_binary_cmds(type == PROTOCOL_RESP4);
+        return p;
     } else if (type == PROTOCOL_MEMCACHE_TEXT) {
         return new memcache_text_protocol();
     } else if (type == PROTOCOL_MEMCACHE_BINARY) {
